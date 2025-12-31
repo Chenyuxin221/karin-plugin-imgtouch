@@ -71,6 +71,7 @@ git clone https://cnb.cool/denfenglai/poke
 
 在 Karin 根目录执行：
 ```bash
+git clone https://github.com/Chenyuxin221/karin-plugin-imgtouch ./plugins/
 pnpm add karin-plugin-imgtouch --workspace
 ```
 

@@ -34,6 +34,24 @@
 | `cacheDuration` | 接口调用缓存时间（毫秒） | `10000` |
 | `fallbackText` | API 异常时的回退文本 | `"Enjoy the image"` |
 
+### 📂 本地图片目录结构示例
+
+若 `baseDir` 设置为 `/home/hua/pokeImage/`，则目录结构应如下所示：
+
+```text
+/home/hua/pokeImage/
+├── 崩铁/
+│   ├── image1.jpg
+│   ├── image2.png
+│   └── ...
+├── 龙图/
+│   ├── lt1.gif
+│   └── ...
+└── 其他分组/
+```
+
+> **注意**：插件会根据 `config.yaml` 中 `groups` 列表里的名称匹配对应的文件夹。
+
 ## 🛠️ 安装
 
 在 Karin 根目录执行：

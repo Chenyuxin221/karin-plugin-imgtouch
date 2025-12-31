@@ -4,13 +4,13 @@
   "author": "shijin",
   "type": "module",
   "description": "karin plugin template",
-  "homepage": "https://github.com/KarinJS/karin",
+  "homepage": "https://github.com/Chenyuxin221/karin-plugin-imgtouch",
   "bugs": {
-    "url": "https://github.com/KarinJS/karin/issues"
+    "url": "https://github.com/Chenyuxin221/karin-plugin-imgtouch/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KarinJS/karin.git"
+    "url": "git+https://github.com/Chenyuxin221/karin-plugin-imgtouch.git"
   },
   "scripts": {
     "app": "node lib/app.js",

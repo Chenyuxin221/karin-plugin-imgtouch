@@ -24,7 +24,7 @@
 | `baseDir` | 本地图片根目录（下属各分组子目录） | `"/home/hua/pokeImage/"` |
 | `baseUrl` | 网络图片接口（支持 `{name}` 模板替换） | `"https://api.com/poke?n={name}"` |
 | `groups` | 启用的图片分组列表 | `["崩铁", "龙图"]` |
-| `excludedGroups` | 排除的分组（黑名单） | `[".git", "temp"]` |
+| `excludedGroups` | 排除的分组（黑名单） | `["龙图"]` |
 
 ### 图片外显配置 (`summary`)
 | 字段 | 说明 | 示例 |
@@ -52,6 +52,21 @@
 
 > **注意**：插件会根据 `config.yaml` 中 `groups` 列表里的名称匹配对应的文件夹。
 
+### 🖼️ 获取图库 (推荐)
+
+推荐使用由 **[等风来](https://cnb.cool/denfenglai)** 维护的图库，包含多个分组的精美图片：
+
+```bash
+# 进入你的图片存放目录
+cd /your/image/path
+# 克隆图库
+git clone https://cnb.cool/denfenglai/poke
+```
+
+克隆完成后，将 `config.yaml` 中的 `baseDir` 设置为克隆下来的 `poke` 目录绝对路径即可。
+
+同时强烈推荐关注作者的另一个优秀项目：
+- **[DF-Plugin](https://github.com/DenFengLai/DF-Plugin/tree/v2)**：功能强大的插件合集。
 ## 🛠️ 安装
 
 在 Karin 根目录执行：

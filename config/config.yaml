@@ -1,0 +1,82 @@
+# 戳一戳图片配置
+poke:
+  # 本地图片根目录
+  baseDir: "/home/hua/pokeImage/"
+  # 网络图片API地址 (本地图片失效时使用)
+  # 支持模板替换: {name} 会被替换为图片分组名称
+  # 例如: "https://api.example.com/poke?name={name}"
+  baseUrl: ""
+  # 启用的图片分组列表
+  groups:
+    - "阿尼亚"
+    - "崩三"
+    - "崩铁"
+    - "柴郡猫"
+    - "超天酱"
+    - "丛雨"
+    - "丁真"
+    - "冬川花璃"
+    - "哆啦A梦"
+    - "弗洛洛"
+    - "甘城猫猫"
+    - "古拉"
+    - "疾旋鼬"
+    - "橘雪莉"
+    - "绫地宁宁"
+    - "龙图"
+    - "罗小黑"
+    - "满穗"
+    - "猫猫虫"
+    - "猫猫收藏家"
+    - "耄耋"
+    - "米塔"
+    - "米游社表情包"
+    - "蜜汁小c"
+    - "纳西妲"
+    - "泉此方"
+    - "塞西莉亚"
+    - "诗歌剧"
+    - "兽耳酱"
+    - "特蕾西娅"
+    - "无职转生"
+    - "夏目安安"
+    - "小猫烧"
+    - "小南梁"
+    - "晓山瑞希"
+    - "心海"
+    - "银狼"
+    - "樱羽艾玛"
+    - "永雏塔菲"
+    - "柚子厨"
+    - "宇佐纪"
+    - "宇佐纪诺诺"
+    - "真白花音"
+    - "真寻"
+    - "api_server"
+    - "ATRI"
+    - "chiikawa"
+    - "doro"
+    - "fufu"
+    - "hanser"
+    - "kemomimi"
+    - "kipfel"
+    - "miku"
+    - "mygo"
+    - "neuro"
+  # 排除的分组列表 (即使在 groups 中也会被过滤)
+  excludedGroups:
+    - "api_server"
+    - "node_modules"
+    - ".git"
+    - ".gemini"
+
+# 图片外显配置 (Hitokoto 一言)
+summary:
+  # 是否启用图片外显开关
+  enable: true
+  # 一言 API 地址
+  apiUrl: "https://v1.hitokoto.cn/?encode=text"
+  # 缓存时间 (毫秒)
+  cacheDuration: 10000
+  # 获取失败时的回退文本
+  fallbackText: "Karin Random Image Summary"

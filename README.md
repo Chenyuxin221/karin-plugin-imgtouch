@@ -1,200 +1,213 @@
 # karin-plugin-imgtouch
 
-一个为 Karin 机器人设计的增强型图片工具插件，提供“戳一戳随机图片”和“图片外显文本（Hitokoto 一言）”等功能。
+一个给 Karin 用的图片插件，提供两个功能：
 
-## ✨ 功能特性
+- 机器人被戳一戳时随机发送图片
+- 给发送中的图片补一段外显文本
 
-### 1. 戳一戳随机图片
-- **随机响应**：当机器人被“戳一戳”时，随机从配置的分组中抽取并发送一张图片。
-- **混合来源**：支持本地图片目录和网络 API 降级。
-- **分组过滤**：支持白名单分组（groups）和黑名单过滤（excludedGroups）。
+## 功能
 
-### 2. 图片外显文本 (Summary)
-- **自动摘要**：通过 `hooks.sendMsg.message` 钩子，自动为所有发送的图片添加一段随机文本外显。
-- **数据来源**：默认集成 Hitokoto（一言）API。
-- **性能优化**：内置缓存机制，避免频繁请求 API。
+### 戳一戳随机图片
 
-## ⚙️ 配置文件说明
+- 监听 `notice.groupPoke`
+- 只在目标是机器人自己时响应
+- 从配置分组里随机挑选一组图片
+- 优先读取本地图片目录，本地不可用时可降级到网络接口
 
-配置文件路径：`config/config.yaml`
+### 图片外显文本
 
-### 戳一戳配置 (`poke`)
-| 字段 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `baseDir` | 本地图片根目录（下属各分组子目录） | `"/home/hua/pokeImage/"` |
-| `baseUrl` | 网络图片接口（支持 `{name}` 模板替换） | `"https://api.com/poke?n={name}"` |
-| `groups` | 启用的图片分组列表 | `["崩铁", "龙图"]` |
-| `excludedGroups` | 排除的分组（黑名单） | `["龙图"]` |
+- 通过 `hooks.sendMsg.message` 给图片元素补 `summary`
+- 默认使用 Hitokoto 接口
+- 带简单缓存，避免频繁请求接口
 
-### 图片外显配置 (`summary`)
-| 字段 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `enable` | 是否启用图片外显功能 | `true` |
-| `apiUrl` | 一言 API 地址 | `"https://v1.hitokoto.cn/?encode=text"` |
-| `cacheDuration` | 接口调用缓存时间（毫秒） | `10000` |
-| `fallbackText` | API 异常时的回退文本 | `"Enjoy the image"` |
+## 安装
 
-### 📂 本地图片目录结构示例
+这个插件支持两种安装方式，二选一即可。
 
-若 `baseDir` 设置为 `/home/hua/pokeImage/`，则目录结构应如下所示：
+### 方式一：作为本地插件使用
+
+适合直接放进 Karin 的 `plugins/` 目录开发和修改。
+
+```bash
+cd /path/to/karin/plugins
+git clone https://github.com/Chenyuxin221/karin-plugin-imgtouch.git
+```
+
+然后在 Karin 根目录重启：
+
+```bash
+ki rs
+```
+
+### 方式二：作为 npm 插件安装
+
+适合不改源码，直接作为依赖使用。
+
+```bash
+cd /path/to/karin
+pnpm add karin-plugin-imgtouch -w
+ki rs
+```
+
+### 注意
+
+不要同时：
+
+- 把仓库放在 `plugins/karin-plugin-imgtouch`
+- 又在根目录 `package.json` 里安装 `karin-plugin-imgtouch`
+
+`node-karin` 会同时扫描 `plugins/` 和根依赖。两边都存在时，插件会被加载两次，表现出来通常就是戳一戳触发两次。
+
+## 配置
+
+配置文件位置：
+
+```text
+@karinjs/karin-plugin-imgtouch/config/config.yaml
+```
+
+默认配置如下：
+
+```yaml
+poke:
+  baseDir: "/home/hua/pokeImage/"
+  baseUrl: ""
+  groups:
+    - "阿尼亚"
+    - "崩三"
+    - "崩铁"
+  excludedGroups:
+    - "api_server"
+    - "node_modules"
+    - ".git"
+
+summary:
+  enable: true
+  apiUrl: "https://v1.hitokoto.cn/?encode=text"
+  cacheDuration: 10000
+  fallbackText: "Karin Random Image Summary"
+```
+
+### `poke`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `baseDir` | `string` | 本地图片根目录 |
+| `baseUrl` | `string` | 网络图片接口地址。本地图片不可用时使用，支持 `{name}` 模板 |
+| `groups` | `string[]` | 可参与随机的分组名称 |
+| `excludedGroups` | `string[]` | 排除的分组名称 |
+
+说明：
+
+- 插件会先从 `groups` 里随机选一个分组
+- `excludedGroups` 命中的分组会被过滤
+- 如果 `baseDir` 可用，会读取 `${baseDir}/${groupName}` 下的图片
+- 如果本地目录不存在、不可访问或为空，并且配置了 `baseUrl`，则回退到网络接口
+
+当 `baseUrl` 包含 `{name}` 时，会直接替换：
+
+```text
+https://example.com/poke?name={name}
+```
+
+如果不包含 `{name}`，插件会自动追加查询参数：
+
+```text
+https://example.com/poke?name=崩铁
+```
+
+### `summary`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `enable` | `boolean` | 是否启用图片外显 |
+| `apiUrl` | `string` | 文本接口地址 |
+| `cacheDuration` | `number` | 缓存时长，单位毫秒 |
+| `fallbackText` | `string` | 接口失败时使用的回退文本 |
+
+## 本地图片目录
+
+如果你使用本地图库，目录结构需要和分组名称对应：
 
 ```text
 /home/hua/pokeImage/
 ├── 崩铁/
-│   ├── image1.jpg
-│   ├── image2.png
-│   └── ...
-├── 龙图/
-│   ├── lt1.gif
-│   └── ...
-└── 其他分组/
+│   ├── 1.jpg
+│   ├── 2.png
+│   └── 3.gif
+├── 阿尼亚/
+│   ├── 1.webp
+│   └── 2.jpg
+└── 真寻/
+    └── 1.png
 ```
 
-> **注意**：插件会根据 `config.yaml` 中 `groups` 列表里的名称匹配对应的文件夹。
+当前支持的图片扩展名：
 
-### 🖼️ 获取图库 (推荐)
+- `.jpg`
+- `.jpeg`
+- `.png`
+- `.gif`
+- `.webp`
+- `.bmp`
+- `.svg`
 
-推荐使用由 **[等风来](https://cnb.cool/denfenglai)** 维护的图库，包含多个分组的精美图片：
+## 使用建议
+
+### 推荐工作流
+
+如果你会经常改插件代码，直接用 `plugins/` 方式即可，简单直接，也方便热更新和排查。
+
+### 关于图片外显
+
+图片外显会作用于发送流程里的图片元素，不只限于戳一戳图片。只要消息元素里有图片，并且当前图片还没有 `summary`，插件就会尝试补一段文本。
+
+## 常见问题
+
+### 戳一戳触发两次
+
+优先检查是否同时用了两种安装方式。
+
+排查方法：
+
+1. 看 `plugins/karin-plugin-imgtouch` 是否存在
+2. 再看 Karin 根目录 `package.json` 里是否还有 `karin-plugin-imgtouch` 依赖
+
+只保留一种即可。
+
+### 本地图片不发送
+
+按下面顺序检查：
+
+1. `baseDir` 是否写对
+2. 分组目录名是否和 `groups` 里的名称一致
+3. 分组目录里是否真的有图片文件
+4. 当前分组是否被 `excludedGroups` 排除了
+5. 如果本地目录不可用，是否配置了可访问的 `baseUrl`
+
+### 修改配置后不生效
+
+先确认改的是实际生效的配置文件：
+
+```text
+@karinjs/karin-plugin-imgtouch/config/config.yaml
+```
+
+插件会监听配置文件变化，但如果你同时改了多份配置或者当前进程状态异常，直接执行一次：
 
 ```bash
-# 进入你的图片存放目录
-cd /your/image/path
-# 克隆图库
-git clone https://cnb.cool/denfenglai/poke
+ki rs
 ```
 
-克隆完成后，将 `config.yaml` 中的 `baseDir` 设置为克隆下来的 `poke` 目录绝对路径即可。
-
-同时强烈推荐关注作者的另一个优秀项目：
-- **[DF-Plugin](https://github.com/DenFengLai/DF-Plugin/tree/v2)**：功能强大的插件合集。
-## 🛠️ 安装
-
-在 Karin 根目录执行：
-```bash
-git clone https://github.com/Chenyuxin221/karin-plugin-imgtouch ./plugins/
-pnpm add karin-plugin-imgtouch --workspace
-```
-
----
-
-# Karin TypeScript 插件开发模板 (原始文档)
-
-- [前言](#前言)
-- [快速开始](#快速开始)
-- [详细开发流程](#详细开发流程)
-- [常见问题与建议](#常见问题与建议)
-- [贡献与反馈](#贡献与反馈)
-
----
-
-## 前言
-
-TypeScript 插件开发流程现在更加简单，无需手动克隆模板仓库，只需一条命令即可快速开始！
-
-> TypeScript 编写 → 编译为 JS → 发布 NPM 包 → 用户安装
-
----
-
-## 🚀 快速开始
+## 开发
 
 ```bash
-pnpm create karin
+pnpm install
+pnpm build
 ```
 
-- 按提示选择“ts插件开发模板”即可自动初始化项目。
-- 进入新建的项目目录，继续开发。
+本地开发调试：
 
----
-
-## 详细开发流程
-
-1. **一键创建项目**
-
-   ```bash
-   pnpm create karin
-   ```
-
-   - 选择“ts插件开发模板”
-   - 填写你的插件名称（会自动作为 package.json 的 name）
-   - 其余信息按提示填写
-
-2. **安装依赖**
-
-   ```bash
-   pnpm install
-   ```
-
-3. **开发与调试**
-
-   - 启动开发命令：
-     ```bash
-     pnpm dev
-     ```
-   - 编写你的插件代码于 `src/` 目录。
-   - 编译输出：
-     ```bash
-     pnpm build
-     ```
-   - 调试编译之后的代码：
-     ```bash
-     pnpm app
-     ```
-   - 本地调试建议：
-     - 可用 `pnpm link --global` 进行全局软链测试。
-     - 或在 karin 根目录用 `pnpm add ../your-plugin-repo -w` 进行本地依赖测试。
-
-4. **配置 NPM 秘钥**
-
-   > 用于自动化发布，建议开启 2FA。
-
-   1. 注册 [npmjs](https://www.npmjs.com/) 账号。
-   2. 进入 `Access Tokens`，新建 `Classic Token`，类型选 `Automation`。
-   3. 复制生成的 Token。
-   4. 打开你的 GitHub 仓库 → Settings → Secrets and variables → Actions。
-   5. 新建 `NPM_TOKEN`，粘贴 Token。
-   6. 允许 GitHub Actions 创建和批准 PR（Settings → Actions）。
-
-5. **设置包信息**
-
-   > 包名必须唯一，建议先在 [npm](https://www.npmjs.com/) 搜索确认。
-
-   - 初始化时填写的插件名会自动作为 package.json 的 name，无需手动修改。
-   - 其他如 `author`、`description`、`homepage`、`bugs.url`、`repository` 可在 package.json 中补充完善。
-   - **CI 配置无需再手动修改 package-name，已自动同步。**
-
-6. **自动化发布**
-
-   > 推送代码后，GitHub Actions 会自动编译并发布到 npm。
-
-   - 常规开发流程：
-     1. `git add . && git commit -m "feat: ..." && git push`
-     2. 等待 CI 自动发布
-     3. 发布成功后可在 npm 页面看到新版本
-
-7. **安装与验证**
-
-   - 在 karin 根目录下安装你的插件：
-     ```bash
-     pnpm add your-package-name -w
-     ```
-   - 验证插件是否生效，可查看 karin 启动日志或相关功能。
-
----
-
-## 💡 常见问题与建议
-
-- **Q: 发布失败怎么办？**
-  - 检查 NPM_TOKEN 是否配置正确，权限是否足够。
-  - 包名是否唯一，未被占用。
-  - Actions 日志可定位具体报错。
-- **Q: 如何本地调试插件？**
-  - 推荐用 `pnpm link` 或本地依赖安装。
-- **Q: 如何贡献代码？**
-  - 欢迎 PR，建议先提 issue 讨论。
-
----
-
-## 贡献与反馈
-
-- 有任何建议或问题，欢迎在 [Issues](https://github.com/KarinJS/karin-plugin-template-ts/issues) 提出。
-- 也可加入官方交流群交流经验。
+```bash
+pnpm dev
+```
